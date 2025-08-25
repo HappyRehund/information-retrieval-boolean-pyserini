@@ -2,6 +2,7 @@
 1. Rayhan Firdaus Ardian
 2. Daffa Harikhsan
 3. Zaky Alraiz Kadarisman
+4. Rocky Arthama Putra
 
 This project demonstrates Boolean information retrieval using Pyserini's Lucene indexing and search capabilities.
 
@@ -48,11 +49,13 @@ uv run python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt'
 ```
 or run this command first (Windows - git bash):
 ```bash
-python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
+source .venv/scripts/activate
 ```
 
+then run this command :
+
 ```bash
-python main.py
+python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
 ```
 
 ## 🚀 Running the Assignment

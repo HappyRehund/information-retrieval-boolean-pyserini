@@ -68,7 +68,7 @@ source .venv/scripts/activate
 ```
 
 ```bash
-python main.py
+uv run python main.py
 ```
 
 The program will:

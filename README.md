@@ -15,13 +15,14 @@ The assignment implements a complete Boolean retrieval system with:
 ## 🏗️ Project Structure
 
 ```
-├── data/
-│   ├── raw_documents.py      # Sample 15 documents
+├── data/                      
 │   └── documents.jsonl       # Processed JSONL file (generated)
 ├── preprocessing/
 │   └── preprocessor.py       # Text preprocessing utilities
 ├── indexing/
 │   └── indexer.py           # Lucene indexing functionality
+├──raw_data/                 
+│   └── raw_documents.py     # 15 raw data
 ├── retrieval/
 │   └── searcher.py          # Boolean search functionality
 ├── main.py                  # Main execution script

@@ -38,8 +38,6 @@ class DocumentIndexer:
         # Ensure index directory exists
         os.makedirs(self.index_dir, exist_ok=True)
         
-        # Initialize indexer with stemming and proper settings
-        # Using args to enable stemming and store necessary information
         args = [
             '-index', self.index_dir,
             '-collection', 'JsonCollection',

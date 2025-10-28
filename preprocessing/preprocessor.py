@@ -45,6 +45,38 @@ class DocumentPreprocessor:
         """Remove extra whitespace"""
         return ' '.join(text.split())
     
+    def preprocess_text(self, text: str) -> List[str]:
+        """
+        Preprocess text and return list of tokens (for query processing)
+        This applies the same preprocessing as documents: lowercase, remove punctuation,
+        remove stopwords, and stemming
+        
+        Args:
+            text: Input text string
+            
+        Returns:
+            List of preprocessed tokens
+        """
+        # Convert to lowercase
+        text = self.to_lowercase(text)
+        
+        # Remove punctuation
+        text = self.remove_punctuation(text)
+        
+        # Clean whitespace
+        text = self.clean_whitespace(text)
+        
+        # Tokenize
+        words = text.split()
+        
+        # Remove stopwords
+        words = self.remove_stopwords(words)
+        
+        # Apply stemming
+        words = self.stem_words(words)
+        
+        return words
+    
     def preprocess_manual(self, text: str) -> str:
         """
         Manual preprocessing pipeline

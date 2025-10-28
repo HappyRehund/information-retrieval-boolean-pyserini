@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="anserini-1.1.1-fatjar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/.venv/Lib/site-packages/pyserini/resources/jars/anserini-1.1.1-fatjar.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

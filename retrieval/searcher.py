@@ -1,7 +1,8 @@
 import os
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Any
 from pyserini.search.lucene import LuceneSearcher
 from pyserini.index import LuceneIndexReader
+from preprocessing import DocumentPreprocessor
 
 class BooleanRetrieval:
     """
@@ -13,10 +14,11 @@ class BooleanRetrieval:
         Initialize the Boolean retrieval system
         """
         self.index_dir = index_dir
-        self.searcher = None
-        self.index_reader = None
+        self.searcher: LuceneSearcher | None = None
+        self.index_reader: LuceneIndexReader | None = None
         self.inverted_index = {}
         self.documents = {}
+        self.preprocessor = DocumentPreprocessor()
         self.initialize_searcher()
         self.build_inverted_index()
     
@@ -32,7 +34,8 @@ class BooleanRetrieval:
             self.index_reader = LuceneIndexReader(self.index_dir)
             print("✓ Boolean retrieval system initialized")
             print(f"📁 Index: {self.index_dir}")
-            print(f"📄 Documents available: {self.index_reader.stats()['documents']}")
+            if self.index_reader is not None:
+                print(f"📄 Documents available: {self.index_reader.stats()['documents']}")
         except Exception as e:
             raise Exception(f"Failed to initialize searcher: {e}")
     
@@ -40,6 +43,9 @@ class BooleanRetrieval:
         """
         Build inverted index manually from the Lucene index
         """
+        if self.index_reader is None:
+            raise Exception("Index reader not initialized")
+            
         print("Building inverted index...")
         
         total_docs = self.index_reader.stats()['documents']
@@ -187,11 +193,22 @@ class BooleanRetrieval:
     def _get_documents_for_term(self, term: str) -> Set[str]:
         """
         Get all documents containing a specific term
+        Apply same preprocessing as during indexing
         """
         term = term.strip().lower()
-        if term in self.inverted_index:
-            return self.inverted_index[term].copy()
-        return set()
+        
+        # Apply preprocessing (tokenization, stopword removal, stemming)
+        processed_term = self.preprocessor.preprocess_text(term)
+        
+        # processed_term is a list of tokens, we need to search for each token
+        result_docs = set()
+        
+        for token in processed_term:
+            if token in self.inverted_index:
+                # UNION all documents containing any token from this term
+                result_docs = result_docs.union(self.inverted_index[token])
+        
+        return result_docs
     
     def explain_boolean_query(self, query: str, results: List[str]) -> str:
         """
@@ -231,11 +248,11 @@ class BooleanRetrieval:
         
         return "\n".join(explanations)
     
-    def verify_boolean_logic(self, query: str, results: List[str]) -> Dict[str, any]:
+    def verify_boolean_logic(self, query: str, results: List[str]) -> Dict[str, Any]:
         """
         Verify that Boolean query results are logically correct
         """
-        verification = {
+        verification: Dict[str, Any] = {
             'query': query,
             'total_results': len(results),
             'logic_correct': True,
@@ -263,7 +280,7 @@ class BooleanRetrieval:
         
         return verification
     
-    def _verify_and_logic(self, query: str, doc_id: str, verification: dict):
+    def _verify_and_logic(self, query: str, doc_id: str, verification: Dict[str, Any]):
         """Verify AND logic"""
         terms = [term.strip() for term in query.split(" and ")]
         
@@ -285,7 +302,7 @@ class BooleanRetrieval:
         
         verification['document_analysis'].append(doc_analysis)
     
-    def _verify_or_logic(self, query: str, doc_id: str, verification: dict):
+    def _verify_or_logic(self, query: str, doc_id: str, verification: Dict[str, Any]):
         """Verify OR logic"""
         terms = [term.strip() for term in query.split(" or ")]
         
@@ -307,7 +324,7 @@ class BooleanRetrieval:
             'found_terms': found_terms
         })
     
-    def _verify_and_not_logic(self, query: str, doc_id: str, verification: dict):
+    def _verify_and_not_logic(self, query: str, doc_id: str, verification: Dict[str, Any]):
         """Verify AND NOT logic"""
         parts = query.split(" and not ")
         if len(parts) != 2:
@@ -336,7 +353,7 @@ class BooleanRetrieval:
             verification['logic_correct'] = False
             verification['issues'].append(f"Document {doc_id} contains excluded term: {negative_term}")
     
-    def _verify_not_logic(self, query: str, doc_id: str, verification: dict):
+    def _verify_not_logic(self, query: str, doc_id: str, verification: Dict[str, Any]):
         """Verify NOT logic"""
         parts = query.split(" not ")
         if len(parts) != 2:
@@ -355,7 +372,7 @@ class BooleanRetrieval:
             verification['logic_correct'] = False
             verification['issues'].append(f"Document {doc_id} contains excluded term: {negative_term}")
     
-    def run_test_queries(self) -> List[Dict]:
+    def run_test_queries(self) -> List[Dict[str, Any]]:
         """
         Run a set of test queries and return results
         """
@@ -371,7 +388,7 @@ class BooleanRetrieval:
         print("BOOLEAN RETRIEVAL TESTING")
         print("=" * 80)
         
-        query_results = []
+        query_results: List[Dict[str, Any]] = []
         
         for i, query in enumerate(test_queries, 1):
             print(f"\n🔍 Query {i}: {query}")
